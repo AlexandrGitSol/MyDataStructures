@@ -12,3 +12,5 @@ src/.idea/
 *.vcxproj
 *.user
 *.filters
+.vs/
+out/
