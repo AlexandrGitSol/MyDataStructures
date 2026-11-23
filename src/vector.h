@@ -26,13 +26,10 @@ namespace MyDataStructures {
                 first_[i] = other.first_[i];
             }
         }
-        vector(vector&& other) noexcept : first_(other.first_), size_(other.size_), capacity_(capacity_) {
-            for (int i = 0; i < size_; i++) {
-                first_[i] = other.first_[i];
-            }
+        vector(vector&& other) noexcept : first_(other.first_), size_(other.size_), capacity_(other.capacity_) {
             other.first_ = nullptr;
             other.size_ = 0;
-            other.capacity_ = 1;
+            other.capacity_ = 0;
         }
 
         T& operator [](size_t index) {
@@ -40,6 +37,7 @@ namespace MyDataStructures {
         }
 
         void operator =(const vector& right) {
+            if (this == &right) return;
             clear();
             reserve(right.capacity_);
             size_ = right.size_;
@@ -50,27 +48,27 @@ namespace MyDataStructures {
         }
 
         void operator =(vector&& right) noexcept {
+            if (this == &right) return;
             clear();
-            reserve(right.capacity_);
             size_ = right.size_;
+            capacity_ = right.capacity_;
             first_ = right.first_;
             right.first_ = nullptr;
             right.size_ = 0;
-            right.capacity_ = 1;
+            right.capacity_ = 0;
         }
 
         void reserve(size_t new_capacity_) {
             if (new_capacity_ == 0) new_capacity_ = 1;
-            //T* new_first_ = new T[new_capacity_];
-            T* new_first_ = (T*)malloc(sizeof(T) * new_capacity_);
-            for (size_t i = 0; i < size_; i++) {
-                new_first_[i] = first_[i];
+            if (new_capacity_ >= size_ && new_capacity_ > capacity_) {
+                T* new_first_ = (T*)malloc(sizeof(T) * new_capacity_);
+                for (size_t i = 0; i < size_; i++) {
+                    new_first_[i] = first_[i];
+                }
+                if (first_) free(first_);
+                first_ = new_first_;
+                capacity_ = new_capacity_;
             }
-            //
-            if (size_) free(first_);
-            first_ = new_first_;
-            capacity_ = new_capacity_;
-            //delete[] new_first_;
         }
 
         void push_back(T val) {
@@ -81,6 +79,7 @@ namespace MyDataStructures {
         }
 
         void pop_back() {
+            assert(!empty() && "pop_back on empty vector");
             size_--;
             if (size_ * 2 < capacity_) {
                 reserve(capacity_ / 2);
@@ -88,7 +87,9 @@ namespace MyDataStructures {
         }
 
         void clear() {
-            if (size_) free(first_);
+            if (first_) free(first_);
+            first_ = nullptr;
+            capacity_ = 0;
             size_ = 0;
         }
 
@@ -117,7 +118,7 @@ namespace MyDataStructures {
         }
 
         ~vector() {
-            if (size_) free(first_);
+            if (first_) free(first_);
         }
     };
 }
