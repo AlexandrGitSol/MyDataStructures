@@ -36,19 +36,19 @@ namespace MyDataStructures {
             return *(first_ + index);
         }
 
-        void operator =(const vector& right) {
-            if (this == &right) return;
+        vector& operator =(const vector& right) {
+            if (this == &right) return *this;
             clear();
             reserve(right.capacity_);
             size_ = right.size_;
             for (int i = 0; i < size_; i++) {
                 this->first_[i] = right.first_[i];
             }
-
+            return *this;
         }
 
-        void operator =(vector&& right) noexcept {
-            if (this == &right) return;
+        vector& operator =(vector&& right) noexcept {
+            if (this == &right) return *this;
             clear();
             size_ = right.size_;
             capacity_ = right.capacity_;
@@ -56,16 +56,17 @@ namespace MyDataStructures {
             right.first_ = nullptr;
             right.size_ = 0;
             right.capacity_ = 0;
+            return *this;
         }
 
         void reserve(size_t new_capacity_) {
             if (new_capacity_ == 0) new_capacity_ = 1;
-            if (new_capacity_ >= size_ && new_capacity_ > capacity_) {
+            if (new_capacity_ > capacity_) {
                 T* new_first_ = (T*)malloc(sizeof(T) * new_capacity_);
                 for (size_t i = 0; i < size_; i++) {
                     new_first_[i] = first_[i];
                 }
-                if (first_) free(first_);
+                free(first_);
                 first_ = new_first_;
                 capacity_ = new_capacity_;
             }
@@ -79,17 +80,14 @@ namespace MyDataStructures {
         }
 
         void pop_back() {
-            assert(!empty() && "pop_back on empty vector");
-            size_--;
-            if (size_ * 2 < capacity_) {
-                reserve(capacity_ / 2);
+            //избавился от assert
+            if (empty()) {
+                throw std::out_of_range("pop_back on empty vector");
             }
+            size_--;
         }
 
         void clear() {
-            if (first_) free(first_);
-            first_ = nullptr;
-            capacity_ = 0;
             size_ = 0;
         }
 
@@ -118,7 +116,7 @@ namespace MyDataStructures {
         }
 
         ~vector() {
-            if (first_) free(first_);
+            free(first_);
         }
     };
 }
